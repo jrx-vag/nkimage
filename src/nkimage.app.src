@@ -1,0 +1,18 @@
+{application, nkimage,
+ [{description, "An OTP library"},
+  {vsn, "0.1.0"},
+  {registered, []},
+  {mod, {nkimage_app, []}},
+  {applications,
+   [kernel,
+    stdlib,
+    inets,
+    nkservice
+   ]},
+  {env,[]},
+  {modules, []},
+
+  {maintainers, []},
+  {licenses, ["Apache 2.0"]},
+  {links, []}
+ ]}.
