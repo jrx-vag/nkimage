@@ -25,6 +25,24 @@ Processor = #{ class => imaginary,
 
 `username` and `password` are required only for HTTP basic authentication.
 
+## Sample image thumbnail request
+
+Creating a thumbnail is as easy as doing:
+
+
+```
+{ok, ThumbnailData} = nkimage:process(SrvId, Processor, #{ action => resize,
+                                                           from => <<"image/jpeg">>,
+                                                           to => <<"image/png">>,
+                                                           width => 150,
+                                                           height => 100,
+                                                           body => FileData }).
+
+```
+
+where `FileData` are the byte data of the original image, and `ThumbnailData` are the bytes of the resulting thumbnail image. 
+
+
 ## Supported image operations
 
 * Image format conversion
