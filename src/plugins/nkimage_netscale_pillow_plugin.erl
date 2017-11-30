@@ -17,7 +17,7 @@
 %% under the License.
 %%
 %% -------------------------------------------------------------------
--module(nkimage_imaginary_plugin).
+-module(nkimage_netscale_pillow_plugin).
 -export([plugin_deps/0]).
 -include("../../include/nkimage.hrl").
 

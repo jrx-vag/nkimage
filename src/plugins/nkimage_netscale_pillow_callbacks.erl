@@ -17,20 +17,20 @@
 %% under the License.
 %%
 %% -------------------------------------------------------------------
--module(nkimage_imaginary_callbacks).
+-module(nkimage_netscale_pillow_callbacks).
 -export([nkimage_parse_processor/2, 
          nkimage_processor_syntax/0, 
          nkimage_process/3]).
 -include("../../include/nkimage.hrl").
 
 nkimage_parse_processor(Data, ParseOpts) ->
-    nkimage_imaginary:parse_processor(Data, ParseOpts).
+    nkimage_netscale_pillow:parse_processor(Data, ParseOpts).
 
 nkimage_processor_syntax() ->
-    nkimage_imaginary:processor_syntax().
+    nkimage_netscale_pillow:processor_syntax().
 
 nkimage_process(SrvId, #{class:= imaginary}=Processor, Req) ->
-    nkimage_imaginary:process(SrvId, Processor, Req);
+    nkimage_netscale_pillow:process(SrvId, Processor, Req);
 
 nkimage_process(_, _, _) ->
     continue.

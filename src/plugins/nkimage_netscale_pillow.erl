@@ -17,7 +17,7 @@
 %% under the License.
 %%
 %% -------------------------------------------------------------------
--module(nkimage_imaginary).
+-module(nkimage_netscale_pillow).
 -export([parse_processor/2, processor_syntax/0, process/3]).
 -include("../../include/nkimage.hrl").
 
@@ -152,7 +152,7 @@ build_qs(Qs) ->
     build_qs(Qs, first, []).
 
 build_qs([], _, Qs) ->
-    bnklib_util:bjoin(lists:reverse(Qs), <<>>); 
+    nklib_util:bjoin(lists:reverse(Qs), <<>>); 
 
 build_qs([{K,V}|Remaining], first, Qs) ->
     build_qs(Remaining, others, [<<K/binary, <<"=">>/binary, V/binary>>|Qs]);
