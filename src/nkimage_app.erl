@@ -3,13 +3,14 @@
 -export([start/2, stop/1]).
 -export([get_processor/1, put_processor/2, get/2]).
 -include("nkimage.hrl").
+-define(APP, nkimage).
 
 start(_Type, _Args) ->
     Syntax = #{processors => {list, map}},
     case nklib_config:load_env(?APP, Syntax) of
         {ok, _} ->
             {ok, Vsn} = application:get_key(?APP, vsn),
-            ?INFO("v~s is starting", [Vsn]),
+            lager:info("nkimage v~s is starting", [Vsn]),
             {ok, Pid} = nkimage_sup:start_link(),
             {ok, Pid};
         {error, Error} ->

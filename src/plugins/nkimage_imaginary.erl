@@ -18,7 +18,7 @@
 %%
 %% -------------------------------------------------------------------
 -module(nkimage_imaginary).
--export([parse_processor/2, processor_syntax/0, resize/4]).
+-export([parse_processor/2, processor_syntax/0, process/3]).
 -include("../../include/nkimage.hrl").
 
 parse_processor(Data, ParseOpts) ->
@@ -38,53 +38,104 @@ processor_syntax() ->
     Base = nkimage_util:processor_syntax(),
     Base#{
         config := #{
-            server => binary,
+            host => binary,
+            port => integer,
+            path => binary,
+            scheme => atom,
             user => binary,
             password => binary,
-            '__mandatory' => [server]
+            '__mandatory' => [host, port, path, scheme]
         }
     }.
 
 
--spec resize(nkservice:id(), nkimage:processor(), nkimage:size(), nkfile:file()) ->
-    {ok, binary()} | {error, term()}.
+process(_, Processor, Req) -> 
+    
+    io:format("~p input request: ~p~n", [?MODULE, Req]),
+    Auth= auth(Processor),
+    Url = url(Processor),
+    Action = action(Req),
+    Mime = mime(Req),
+    Body = body(Req),
+    Headers = params(Req),
 
-resize(_SrvId, #{ config:=#{ server := Server, user := User, password := Password }}, 
-       #{width:=Width, height:=Height},  #{meta := #{ file_path := FilePath, content_type := Mime}}) ->
-    AuthToken = base64:encode_to_string( 
-                 binary_to_list(<<User/binary, <<":">>/binary, Password/binary>>)),
-    handle(request(Server, <<"resize">>,
-            [{<<"width">>, int_to_binary(Width)},
-              {<<"height">>, int_to_binary(Height)}], FilePath, Mime, AuthToken));
+    handle(request(Url, Action, Headers, Body, Mime, Auth)).
 
-resize(_SrvId, #{ config:=#{ server := Server }}, 
-       #{width:=Width, height:=Height}, #{meta := #{ file_path := FilePath, content_type := Mime}}) ->
-    handle(request(Server, <<"resize">>,  
-          [{<<"width">>, int_to_binary(Width)},
-           {<<"height">>, int_to_binary(Height)}], FilePath, Mime, undefined)).
 
-%%====================================================================
-%% Internal functions
-%%====================================================================
-request(BaseUrl, Op, Params, FilePath, Mime, AuthToken) ->
+action(#{ action := resize }) -> <<"resize">>;
+action(#{ action := convert }) -> <<"convert">>.
+
+mime(#{ from := CT}) -> CT.
+body(#{ body := Body}) -> Body.
+
+params(#{ width := Width, 
+          height := Height,
+          to := <<"image/", Fmt/binary>> }) -> 
+    [{<<"width">>, int_to_binary(Width)},
+     {<<"height">>, int_to_binary(Height)},
+     {<<"type">>, Fmt}];
+
+params(#{ width := Width, 
+          height := Height,
+          to := <<"application/", Fmt/binary>> }) -> 
+    [{<<"width">>, int_to_binary(Width)},
+     {<<"height">>, int_to_binary(Height)},
+     {<<"type">>, Fmt}];
+
+params(#{ to := <<"image/", Fmt/binary>> }) ->
+    [{<<"type">>, Fmt}];
+
+params(#{ to := <<"application/", Fmt/binary>> }) ->
+    [{<<"type">>, Fmt}].
+
+auth(#{ config:=#{ user := User,
+                   password := Password }}) ->
+    base64:encode_to_string(
+                 binary_to_list(<<User/binary, 
+                                  <<":">>/binary, 
+                                  Password/binary>>));
+auth(_) -> 
+    none.
+
+url(#{ config:=#{ host := Host,
+                             path := Path,
+                             port := Port,
+                             scheme := Scheme}}) ->
+    nklib_util:to_binary(string:join([nklib_util:to_list(Scheme),
+                 "://",
+                 nklib_util:to_list(Host),
+                 ":",
+                 nklib_util:to_list(Port),
+                 nklib_util:to_list(Path)], "")).
+
+
+request(BaseUrl, Op, Params, Body, Mime, AuthToken) ->
     Headers = case AuthToken of
-                  undefinde -> [];
+                  none -> [];
                   _ ->
                       [{"Authorization", "Basic " ++ AuthToken}]
               end,
     
-    {ok, F} = file:read_file(FilePath),
-    Url = endpoint(BaseUrl, Op, Params),
-    ?DEBUG("request url: ~p", [Url]),
-    httpc:request(post,{erlang:binary_to_list(Url), Headers, binary_to_list(Mime), F},[],[]).
+    Url = nklib_util:to_list(endpoint(BaseUrl, Op, Params)),
+    ContentType = nklib_util:to_list(Mime),
+    lager:debug("~p: request: url=~p, headers=~p, content_type=~p", 
+                [?MODULE, Url, Headers, ContentType]),
+    httpc:request(post,{ Url, Headers, ContentType, Body},[],[]).
 
-handle({ok, {{_, 200, _}, _, Body}}) ->
+handle({ok, {{_, 200, _}, _, Body}}) when is_binary(Body)->
+    lager:debug("~p imaginary response: Status=200", [?MODULE]),
     {ok, Body};
 
-handle({ok, {{_, _, _}, _, Body}}) ->
+handle({ok, {{_, 200, _}, _, Body}}) when is_list(Body)->
+    lager:debug("~p imaginary response: Status=200", [?MODULE]),
+    {ok, nklib_util:to_binary(Body)};
+
+handle({ok, {{_, StatusCode, _}, _, Body}}) ->
+    lager:debug("~p imaginary response: Status=~p, Body=~p", [?MODULE, StatusCode, Body]),
     {error, Body};
 
 handle(E) ->
+    lager:debug("~p imaginary error: ~p", [?MODULE, E]),
     E.
 
 

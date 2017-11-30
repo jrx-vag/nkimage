@@ -21,9 +21,6 @@
 %% ===================================================================
 %% Defines
 %% ===================================================================
--define(APP, nkimage).
--define(LOG(Level, Txt, Args), lager:Level("nkimage "++Txt, Args)).
--define(INFO(Txt, Args), ?LOG(info, Txt, Args)).
--define(DEBUG(Txt, Args), ?LOG(debug, Txt, Args)).
--define(ERROR(Txt, Args), ?LOG(error, Txt, Args)).
--define(WARN(Txt, Args), ?LOG(warn, Txt, Args)).
+-define(IMAGE_PROCESSOR, <<"image.processor">>).
+-define(IMAGE_THUMBNAIL_JOB, <<"image.thumbnail.job">>).
+-define(IMAGE_JOB, <<"image.job">>).

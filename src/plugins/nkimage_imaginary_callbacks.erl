@@ -18,30 +18,19 @@
 %%
 %% -------------------------------------------------------------------
 -module(nkimage_imaginary_callbacks).
--export([plugin_deps/0]).
--export([nkimage_parse_processor/2, nkimage_processor_syntax/0, nkimage_resize/4]).
+-export([nkimage_parse_processor/2, 
+         nkimage_processor_syntax/0, 
+         nkimage_process/3]).
 -include("../../include/nkimage.hrl").
 
-%% ===================================================================
-%% Plugin callbacks
-%%
-%% These are used when nkimage Imaginary is started as a NkSERVICE plugin
-%% ===================================================================
-
-plugin_deps() ->
-    [nkimage, nkfile].
-
-%% ===================================================================
-%% nkimage callbacks
-%% ===================================================================
 nkimage_parse_processor(Data, ParseOpts) ->
     nkimage_imaginary:parse_processor(Data, ParseOpts).
 
 nkimage_processor_syntax() ->
     nkimage_imaginary:processor_syntax().
 
-nkimage_resize(SrvId, #{class:= imaginary}=Processor, Size, File) ->
-    nkimage_imaginary:resize(SrvId, Processor, Size, File);
+nkimage_process(SrvId, #{class:= imaginary}=Processor, Req) ->
+    nkimage_imaginary:process(SrvId, Processor, Req);
 
-nkimage_resize(_, _, _, _) ->
+nkimage_process(_, _, _) ->
     continue.

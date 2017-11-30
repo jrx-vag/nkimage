@@ -18,19 +18,11 @@
 %%
 %% -------------------------------------------------------------------
 -module(nkimage).
--export([parse_processor/3]).
--export_type([processor_id/0, processor/0]).
+-export([parse_processor/3, process/3]).
 -include("nkimage.hrl").
-%% ===================================================================
-%% Types
-%% ===================================================================
--type processor_id() :: term().
--type processor() :: #{ config => map() }.
-
-
-%% @doc
--spec parse_processor(nkservice:id(), map(), nklib_syntax:parse_opts()) ->
-    {ok, processor(), [binary()]} | {error, term()}.
 
 parse_processor(SrvId, Map, ParseOpts) ->
     SrvId:nkimage_parse_processor(Map, ParseOpts).
+
+process(SrvId, Processor, Req) ->
+    SrvId:nkimage_process(SrvId, Processor, Req).
