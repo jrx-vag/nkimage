@@ -31,12 +31,14 @@ Creating a thumbnail is as easy as doing:
 
 
 ```
-{ok, ThumbnailData} = nkimage:process(SrvId, Processor, #{ action => resize,
-                                                           from => <<"image/jpeg">>,
-                                                           to => <<"image/png">>,
-                                                           width => 150,
-                                                           height => 100,
-                                                           body => FileData }).
+Req => #{ action => resize,
+          from => <<"image/jpeg">>,
+          to => <<"image/png">>,
+          width => 150,
+          height => 100,
+          body => FileData }).
+
+{ok, ThumbnailData} = nkimage:process(SrvId, Processor, Req).
 
 ```
 
@@ -45,8 +47,26 @@ where `FileData` are the byte data of the original image, and `ThumbnailData` ar
 
 ## Supported image operations
 
-* Image format conversion
-* Image thumbnail generation
+* Image format conversion:
+
+```
+Req => #{ action => convert,
+          from => <<"image/jpeg">>,
+          to => <<"image/png">>,
+          body => FileData }).
+```
+
+* Image thumbnail generation:
+
+
+```
+Req => #{ action => resize,
+          from => <<"image/jpeg">>,
+          to => <<"image/png">>,
+          width => 150,
+          height => 100,
+          body => FileData }).
+```
 
 ## Plugins
 
