@@ -1,6 +1,6 @@
 %% -------------------------------------------------------------------
 %%
-%% Copyright (c) 2017 Carlos Gonzalez Florido.  All Rights Reserved.
+%% Copyright (c) 2017 NetScale, SL.  All Rights Reserved.
 %%
 %% This file is provided to you under the Apache License,
 %% Version 2.0 (the "License"); you may not use this file
@@ -22,5 +22,4 @@
 %% Defines
 %% ===================================================================
 -define(IMAGE_PROCESSOR, <<"image.processor">>).
--define(IMAGE_THUMBNAIL_JOB, <<"image.thumbnail.job">>).
 -define(IMAGE_JOB, <<"image.job">>).

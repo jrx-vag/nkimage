@@ -1,6 +1,6 @@
 %% -------------------------------------------------------------------
 %%
-%% Copyright (c) 2017 Carlos Gonzalez Florido.  All Rights Reserved.
+%% Copyright (c) 2017 NetScale, SL.  All Rights Reserved.
 %%
 %% This file is provided to you under the Apache License,
 %% Version 2.0 (the "License"); you may not use this file
@@ -51,7 +51,6 @@ processor_syntax() ->
 
 process(_, Processor, Req) -> 
     
-    io:format("~p input request: ~p~n", [?MODULE, Req]),
     Auth= auth(Processor),
     Url = url(Processor),
     Action = action(Req),
@@ -71,15 +70,15 @@ body(#{ body := Body}) -> Body.
 params(#{ width := Width, 
           height := Height,
           to := <<"image/", Fmt/binary>> }) -> 
-    [{<<"width">>, int_to_binary(Width)},
-     {<<"height">>, int_to_binary(Height)},
+    [{<<"width">>, nklib_util:to_binary(Width)},
+     {<<"height">>, nklib_util:to_binary(Height)},
      {<<"type">>, Fmt}];
 
 params(#{ width := Width, 
           height := Height,
           to := <<"application/", Fmt/binary>> }) -> 
-    [{<<"width">>, int_to_binary(Width)},
-     {<<"height">>, int_to_binary(Height)},
+    [{<<"width">>, nklib_util:to_binary(Width)},
+     {<<"height">>, nklib_util:to_binary(Height)},
      {<<"type">>, Fmt}];
 
 params(#{ to := <<"image/", Fmt/binary>> }) ->
@@ -153,30 +152,10 @@ build_qs(Qs) ->
     build_qs(Qs, first, []).
 
 build_qs([], _, Qs) ->
-    binary_join(lists:reverse(Qs), <<>>); 
+    bnklib_util:bjoin(lists:reverse(Qs), <<>>); 
 
 build_qs([{K,V}|Remaining], first, Qs) ->
     build_qs(Remaining, others, [<<K/binary, <<"=">>/binary, V/binary>>|Qs]);
 
 build_qs([{K,V}|Remaining], others, Qs) ->
     build_qs(Remaining, others, [<< <<"&">>/binary, K/binary, <<"=">>/binary, V/binary>>|Qs]).
-
-
-%%====================================================================
-%% Internal -- Binary manipulation helper functions 
-%%====================================================================
--spec binary_join([binary()], binary()) -> binary().
-binary_join([], _Sep) ->
-  <<>>;
-binary_join([Part], _Sep) ->
-  Part;
-binary_join(List, Sep) ->
-  lists:foldr(fun (A, B) ->
-    if
-      bit_size(B) > 0 -> <<A/binary, Sep/binary, B/binary>>;
-      true -> A
-    end
-  end, <<>>, List).
-
-int_to_binary(Int) ->
-    list_to_binary(integer_to_list(Int)).
