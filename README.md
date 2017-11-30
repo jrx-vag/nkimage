@@ -6,8 +6,10 @@ An image processing plugin for NetComposer
 
 * JPEG to PNG
 * PNG to JPEG
+* JPEG to PDF
+* PNG to PDF
 * TIFF to PNG, JPEG (only first page)
-* TIFF to PNG (multipage)
+* TIFF to PDF (multipage)
 
 ## API
 
