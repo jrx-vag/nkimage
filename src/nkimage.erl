@@ -21,8 +21,24 @@
 -export([parse_processor/3, process/3]).
 -include("nkimage.hrl").
 
+-type processor() :: #{ class => atom,
+                        config => map() }.
+
+-type action() :: convert | resize.
+-type content_type() :: binary.
+-type req() :: #{ action => action(),
+                  from => content_type(),
+                  to => content_type(),
+                  height => integer,
+                  width => integer }.
+-type resp() :: binary.
+
+-spec parse_processor(nkservice:id(), map(), map()) ->
+    {ok, processor()} | {error, term()}.
 parse_processor(SrvId, Map, ParseOpts) ->
     SrvId:nkimage_parse_processor(Map, ParseOpts).
 
+-spec process(nkservice:id(), processor(), req()) ->
+    {ok, resp()} | {error, term()}.
 process(SrvId, Processor, Req) ->
     SrvId:nkimage_process(SrvId, Processor, Req).
