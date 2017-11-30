@@ -2,6 +2,13 @@
 
 An image processing plugin for NetComposer
 
+## Supported conversions
+
+* JPEG to PNG
+* PNG to JPEG
+* TIFF to PNG, JPEG (only first page)
+* TIFF to PNG (multipage)
+
 ## API
 
 There are two main functions offered by this plugin:
