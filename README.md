@@ -20,7 +20,7 @@ There are two main functions offered by this plugin:
 
 ## Sample processor configuration
 
-An image processor describes what kind of underlying implementation or provider will be used to perform actual image conversion. As an example, `nkimage_imaginary` supports the following syntax:
+An image processor describes what kind of underlying implementation or provider will be used to perform actual image conversion. As an example, `nkimage_netscale_pillow` supports the following syntax:
 
 ```
 Processor = #{ class => imaginary,
@@ -79,4 +79,4 @@ Req => #{ action => resize,
 
 ## Plugins
 
-* `nkimage_imaginary`, based on an external HTTP based microservice. 
+* `nkimage_netscale_pillow`, a wrapper for a custom microservice, implemented in Python, using the Pillow library, an a HTTP api.
