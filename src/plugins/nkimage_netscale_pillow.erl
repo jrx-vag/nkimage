@@ -56,9 +56,9 @@ process(_, Processor, Req) ->
     Action = action(Req),
     Mime = mime(Req),
     Body = body(Req),
-    Headers = params(Req),
+    Params = params(Req),
 
-    handle(request(Url, Action, Headers, Body, Mime, Auth)).
+    handle(request(Url, Action, Params, Body, Mime, Auth)).
 
 
 action(#{ action := resize }) -> <<"resize">>;
@@ -69,23 +69,36 @@ body(#{ body := Body}) -> Body.
 
 params(#{ width := Width, 
           height := Height,
-          to := <<"image/", Fmt/binary>> }) -> 
+          to := <<"image/", Fmt/binary>>,
+          options := Options }) -> 
+    
     [{<<"width">>, nklib_util:to_binary(Width)},
      {<<"height">>, nklib_util:to_binary(Height)},
-     {<<"type">>, Fmt}];
+     {<<"type">>, Fmt}] ++ parse_opts(Options);
 
 params(#{ width := Width, 
           height := Height,
-          to := <<"application/", Fmt/binary>> }) -> 
+          to := <<"application/", Fmt/binary>>,
+          options := Options }) -> 
+    
     [{<<"width">>, nklib_util:to_binary(Width)},
      {<<"height">>, nklib_util:to_binary(Height)},
-     {<<"type">>, Fmt}];
+     {<<"type">>, Fmt}] ++ parse_opts(Options);
 
-params(#{ to := <<"image/", Fmt/binary>> }) ->
-    [{<<"type">>, Fmt}];
+params(#{ to := <<"image/", Fmt/binary>>, 
+          options := Options }) ->
+    
+    [{<<"type">>, Fmt}] ++ parse_opts(Options);
 
-params(#{ to := <<"application/", Fmt/binary>> }) ->
-    [{<<"type">>, Fmt}].
+params(#{ to := <<"application/", Fmt/binary>>,
+          options := Options }) ->
+    
+    [{<<"type">>, Fmt}] ++ parse_opts(Options).
+
+parse_opts(Options) ->
+    maps:fold( fun(K, V, Opts) ->
+                [{ nklib_util:to_binary(K), nklib_util:to_binary(V)}|Opts]
+               end, [], Options).
 
 auth(#{ config:=#{ user := User,
                    password := Password }}) ->
