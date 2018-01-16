@@ -29,7 +29,7 @@ nkimage_parse_processor(Data, ParseOpts) ->
 nkimage_processor_syntax() ->
     nkimage_netscale_pillow:processor_syntax().
 
-nkimage_process(SrvId, #{class:= imaginary}=Processor, Req) ->
+nkimage_process(SrvId, #{class:= pillow}=Processor, Req) ->
     nkimage_netscale_pillow:process(SrvId, Processor, Req);
 
 nkimage_process(_, _, _) ->
