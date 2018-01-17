@@ -23,7 +23,7 @@
 
 parse_processor(Data, ParseOpts) ->
     case nklib_syntax:parse(Data, #{class=> atom}) of
-        {ok, #{class:=imaginary}, _} ->
+        {ok, #{class:=pillow}, _} ->
             case nklib_syntax:parse(Data, processor_syntax(), ParseOpts) of
                   {ok, Processor, UnknownFields} ->
                       {ok, Processor, UnknownFields};
@@ -135,19 +135,19 @@ request(BaseUrl, Op, Params, Body, Mime, AuthToken) ->
     httpc:request(post,{ Url, Headers, ContentType, Body},[],[]).
 
 handle({ok, {{_, 200, _}, _, Body}}) when is_binary(Body)->
-    lager:debug("~p imaginary response: Status=200", [?MODULE]),
+    lager:debug("~p pillow response: Status=200", [?MODULE]),
     {ok, Body};
 
 handle({ok, {{_, 200, _}, _, Body}}) when is_list(Body)->
-    lager:debug("~p imaginary response: Status=200", [?MODULE]),
+    lager:debug("~p pillow response: Status=200", [?MODULE]),
     {ok, nklib_util:to_binary(Body)};
 
 handle({ok, {{_, StatusCode, _}, _, Body}}) ->
-    lager:debug("~p imaginary response: Status=~p, Body=~p", [?MODULE, StatusCode, Body]),
+    lager:debug("~p pillow response: Status=~p, Body=~p", [?MODULE, StatusCode, Body]),
     {error, Body};
 
 handle(E) ->
-    lager:debug("~p imaginary error: ~p", [?MODULE, E]),
+    lager:debug("~p pillow error: ~p", [?MODULE, E]),
     E.
 
 
