@@ -62,7 +62,8 @@ process(_, Processor, Req) ->
 
 
 action(#{ action := resize }) -> <<"resize">>;
-action(#{ action := convert }) -> <<"convert">>.
+action(#{ action := convert }) -> <<"convert">>;
+action(#{ action := info }) -> <<"info">>.
 
 mime(#{ from := CT}) -> CT.
 body(#{ body := Body}) -> Body.
@@ -93,7 +94,10 @@ params(#{ to := <<"image/", Fmt/binary>>,
 params(#{ to := <<"application/", Fmt/binary>>,
           options := Options }) ->
     
-    [{<<"type">>, Fmt}] ++ parse_opts(Options).
+    [{<<"type">>, Fmt}] ++ parse_opts(Options);
+
+params(#{ options := Options }) ->
+    parse_opts(Options).
 
 parse_opts(Options) ->
     maps:fold( fun(K, V, Opts) ->
