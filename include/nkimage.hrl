@@ -23,3 +23,4 @@
 %% ===================================================================
 -define(IMAGE_PROCESSOR, <<"image.processor">>).
 -define(IMAGE_JOB, <<"image.job">>).
+-define(MIN_IMAGE_SIZE, 200000).

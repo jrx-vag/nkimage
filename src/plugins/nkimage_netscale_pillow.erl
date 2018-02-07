@@ -58,7 +58,52 @@ process(_, Processor, Req) ->
     Body = body(Req),
     Params = params(Req),
 
-    handle(request(Url, Action, Params, Body, Mime, Auth)).
+    Continue = case Action of
+        <<"resize">> ->
+            if
+                erlang:size(Body) > ?MIN_IMAGE_SIZE ->
+                    ok;
+                true ->
+                    case handle(request(Url, <<"info">>, Params, Body, Mime, Auth)) of
+                        {ok, RawJson} ->
+                            Meta = nklib_json:decode(RawJson),
+                            case needs_thumbnail(Meta, Req) of
+                                false ->
+                                    {error, no_thumbnail_needed};
+                                true ->
+                                    ok
+                            end;
+                        _ ->
+                            ok
+                    end
+            end;
+        _ ->
+            ok
+    end,
+    case Continue of
+        ok ->
+            case handle(request(Url, Action, Params, Body, Mime, Auth)) of
+                {ok, Thumb} ->
+                    case Action of
+                        <<"resize">> ->
+                            BodySize = erlang:size(Body),
+                            ThumbSize = erlang:size(Thumb),
+                            if
+                                BodySize < ThumbSize ->
+                                    lager:warning("~p thumbnail_bigger, Original size: ~p, Thumbnail size: ~p", [?MODULE, BodySize, ThumbSize]),
+                                    {error, thumbnail_bigger};
+                                true ->
+                                    {ok, Thumb}
+                            end;
+                        _ ->
+                            {ok, Thumb}
+                    end;
+                Other ->
+                    Other
+            end;
+        Other ->
+            Other
+    end.
 
 
 action(#{ action := resize }) -> <<"resize">>;
@@ -176,3 +221,20 @@ build_qs([{K,V}|Remaining], first, Qs) ->
 
 build_qs([{K,V}|Remaining], others, Qs) ->
     build_qs(Remaining, others, [<< <<"&">>/binary, K/binary, <<"=">>/binary, V/binary>>|Qs]).
+
+
+%%====================================================================
+%% Internal
+%%====================================================================
+
+needs_thumbnail(#{width:=OW, height:=OH}, R) ->
+    needs_thumbnail(#{<<"width">> => OW, <<"height">> => OH}, R); 
+
+needs_thumbnail(O, #{width:=RW, height:=RH}) ->
+    needs_thumbnail(O, #{<<"width">> => RW, <<"height">> => RH}); 
+
+needs_thumbnail(#{<<"width">>:=OW, <<"height">>:=OH}, #{<<"width">> := RW, <<"height">> := RH}) when OW > RW orelse OH > RH ->
+    true;
+
+needs_thumbnail(_O, _R) ->
+    false.
