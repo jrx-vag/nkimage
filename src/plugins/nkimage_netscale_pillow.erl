@@ -61,9 +61,7 @@ process(_, Processor, Req) ->
     handle(request(Url, Action, Params, Body, Mime, Auth)).
 
 
-action(#{ action := resize }) -> <<"resize">>;
-action(#{ action := convert }) -> <<"convert">>;
-action(#{ action := info }) -> <<"info">>.
+action(_) -> <<"convert">>.
 
 mime(#{ from := CT}) -> CT.
 body(#{ body := Body}) -> Body.
